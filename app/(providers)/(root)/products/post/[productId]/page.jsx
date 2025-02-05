@@ -10,7 +10,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useModal } from '@/contexts/ModalContext';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useParams, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 function ProductEditPage() {
@@ -84,11 +84,10 @@ function ProductEditPage() {
   const handleClickRegister = () => {
     if (!isPossibleRegist) return;
     checkIsLoggedIn();
-    onSubmit();
   };
 
   const onSubmit = (dto) => {
-    if (!dto) return;
+    if (!isLoggedIn || !isPossibleRegist) return;
     const { name, description, price } = dto;
     const reqData = {
       name,
@@ -128,10 +127,10 @@ function ProductEditPage() {
     }
   };
 
-  useEffect(() => {
-    // /products/post로 접근 시 로그인 여부 체크
-    checkIsLoggedIn();
-  }, [isLoggedIn]);
+  // useEffect(() => {
+  //   // /products/post로 접근 시 로그인 여부 체크
+  //   checkIsLoggedIn();
+  // }, [isLoggedIn]);
 
   return (
     <PageContainer>
