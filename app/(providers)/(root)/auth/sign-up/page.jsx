@@ -73,6 +73,10 @@ function SignUpPage() {
       ) {
         modal.open(<AlertModal alertMessage={'이미 사용중인 닉네임입니다.'} />);
         setError('nickname', { message: '닉네임을 확인해 주세요' });
+      } else {
+        modal.open(
+          <AlertModal alertMessage={'에러가 발생했습니다. 다시 시도해주세요'} />
+        );
       }
     },
   });

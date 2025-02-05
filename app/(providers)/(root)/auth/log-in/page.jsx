@@ -58,6 +58,10 @@ function LogInPage() {
       ) {
         modal.open(<AlertModal alertMessage={error.response.data.message} />);
         setError('password', { message: '비밀번호를 확인해 주세요' });
+      } else {
+        modal.open(
+          <AlertModal alertMessage={'에러가 발생했습니다. 다시 시도해주세요'} />
+        );
       }
     },
   });
