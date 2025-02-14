@@ -64,8 +64,8 @@ function ArticleListSkeleton() {
           <div className="flex justify-between w-full h-10 mb-6 bg-gray-100"></div>
           {Array(10)
             .fill('')
-            .map((index) => (
-              <ArticleWidget key={`article-widget-${index}`} />
+            .map((_, index) => (
+              <ArticleWidget key={`${index}`} />
             ))}
         </section>
       </div>

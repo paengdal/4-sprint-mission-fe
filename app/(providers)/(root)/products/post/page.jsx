@@ -1,6 +1,8 @@
 'use client';
 
 import api from '@/api';
+import icX from '@/assets/images/ic-x.png';
+import icPlus from '@/assets/images/ic_plus.png';
 import AlertModal from '@/components/common/AlertModal';
 import Button from '@/components/common/Button';
 import Loader from '@/components/common/Loader';
@@ -9,8 +11,9 @@ import TagChip from '@/components/common/TagChip';
 import { useAuth } from '@/contexts/AuthContext';
 import { useModal } from '@/contexts/ModalContext';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 function ProductPostPage() {
@@ -19,6 +22,7 @@ function ProductPostPage() {
     handleSubmit,
     setValue,
     setError,
+    watch,
     formState: { errors, isValid },
   } = useForm({
     mode: 'onBlur',
@@ -27,22 +31,28 @@ function ProductPostPage() {
       description: '',
       price: '',
       tag: '',
+      // image: null,
     },
   });
   const modal = useModal();
-  const { isLoggedIn, isAuthInitialized } = useAuth();
+  const { isLoggedIn, isAuthInitialized, userInfo } = useAuth();
   const [tags, setTags] = useState([]);
   const router = useRouter();
   const queryClient = useQueryClient();
+  const fileInputRef = useRef();
+  const [pickedImages, setPickedImages] = useState([]);
+  // const [pickedImage, setPickedImage] = useState(null);
 
   const isTagsNotEmpty = tags.length !== 0;
-  const isPossibleRegist = isValid && isTagsNotEmpty;
+  const pickedImagesNotEmpty = pickedImages.length !== 0;
+  const isPossibleRegist = isValid && isTagsNotEmpty && pickedImagesNotEmpty;
 
   const { mutate: createProduct, isPending } = useMutation({
     mutationFn: (dto) => api.postProduct(dto),
     onSuccess: (product) => {
       function handleClickSuccess() {
-        router.replace(`/products/${product.id}`);
+        router.replace(`/products`);
+        // router.replace(`/products/${product.id}`);
         modal.close();
       }
       queryClient.invalidateQueries({ queryKey: ['products'] });
@@ -82,8 +92,10 @@ function ProductPostPage() {
       name,
       description,
       tags,
+      writer: userInfo.nickname,
       price: Number(price),
-      images: 'https://example.com/...',
+      images: pickedImages,
+      // images: ['ddd'],
     };
     createProduct(reqData);
   };
@@ -93,6 +105,31 @@ function ProductPostPage() {
       ...prevTags.slice(0, index),
       ...prevTags.slice(index + 1),
     ]);
+  };
+
+  const handleChangeImages = (e) => {
+    if (!e.target.files) rerturn;
+    const fileList = e.target.files;
+    const fileArray = Array.from(fileList); // iterable을 array로 변경(map method를 쓰기 위해)
+
+    if (fileArray.length > 3)
+      return modal.open(
+        <AlertModal alertMessage="이미지는 최대 3개까지 등록 가능합니다." />
+      );
+    setPickedImages(fileArray);
+    e.target.value = '';
+  };
+
+  const handleClickAddImageButton = () => {
+    fileInputRef.current.click();
+  };
+
+  const handleClickDeleteImageButton = (idx) => {
+    if (pickedImages.length > 1) {
+      setPickedImages(pickedImages.filter((_, index) => index !== idx));
+    } else {
+      setPickedImages([]);
+    }
   };
 
   const handleTagEnter = (e) => {
@@ -136,6 +173,60 @@ function ProductPostPage() {
             </Button>
           </div>
           <div className="inline-flex flex-col w-full mb-6">
+            <label htmlFor="images" className="text-lg font-bold mb-4">
+              상품 이미지
+            </label>
+            <div className="grid gap-6 grid-cols-4 mb-8">
+              <button
+                onClick={handleClickAddImageButton}
+                type="button"
+                className="flex items-center justify-center w-[100%] pb-[calc(50%-43px)] pt-[calc(50%-43px)] bg-[#F3F4F6] rounded-xl"
+              >
+                <div className="flex flex-col justify-center items-center">
+                  <Image src={icPlus} alt="이미지등록" className="w-12 mb-3" />
+                  <p className="text-[#9CA3AF]">이미지 등록(최대 3)</p>
+                </div>
+              </button>
+              <input
+                id="images"
+                type="file"
+                {...register('images', {
+                  // validate: {
+                  //   isNotEmpty: (value) => {
+                  //     return pickedImages.length === 0
+                  //       ? '이미지 1개는 반드시 첨부해야 합니다'
+                  //       : pickedImages.length > 3
+                  //       ? '이미지는 최대 3개까지 가능합니다'
+                  //       : true;
+                  //   },
+                  // },
+                })}
+                accept="image/*"
+                multiple
+                className="hidden"
+                ref={fileInputRef}
+                onChange={handleChangeImages}
+              />
+              {pickedImages.length > 0 &&
+                pickedImages.map((image, index) => (
+                  <div className="relative" key={image + index}>
+                    <Image
+                      src={URL.createObjectURL(image)}
+                      alt="첨부이미지"
+                      fill
+                      className="rounded-xl aspect-square object-cover"
+                    />
+                    <div className="flex justify-center items-center absolute right-3 top-3 w-5 h-5 rounded-full bg-[#9CA3AF] cursor-pointer">
+                      <Image
+                        src={icX}
+                        alt="첨부이미지 삭제"
+                        className="w-[10px]"
+                        onClick={() => handleClickDeleteImageButton(index)}
+                      />
+                    </div>
+                  </div>
+                ))}
+            </div>
             <label htmlFor="name" className="text-lg font-bold mb-4">
               상품명
             </label>

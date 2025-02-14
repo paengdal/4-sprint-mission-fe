@@ -1,9 +1,9 @@
 import axios from 'axios';
 
 // const baseURL = 'https://four-sprint-mission-be.onrender.com/';
-const baseURL = 'https://panda-market-api.vercel.app';
+// const baseURL = 'https://panda-market-api.vercel.app';
 
-// const baseURL = 'http://localhost:5500';
+const baseURL = 'http://localhost:5500';
 
 export const client = axios.create({
   baseURL,
@@ -23,11 +23,14 @@ function errorHandler(error) {
 // - headers에 accessToken 실어 보내기
 client.interceptors.request.use(
   (config) => {
+    console.log('do interceptor');
+    if (config.url === '/users/refresh-token') return config;
     let accessToken;
     if (typeof window !== 'undefined') {
       accessToken = localStorage.getItem('accessToken');
     }
     if (accessToken) {
+      console.log('accessToken을 헤더에 실어보내기');
       config.headers.Authorization = `Bearer ${accessToken}`;
     }
     return config;
@@ -46,7 +49,7 @@ client.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
     const statusCode = error.response?.status;
-    if (statusCode === 401 && !originalRequest._retry) {
+    if ((statusCode === 401 || statusCode === 419) && !originalRequest._retry) {
       console.log('토큰 만료');
       originalRequest._retry = true;
       let prevRefreshToken;
@@ -131,13 +134,35 @@ const getArticle = async (articleId) => {
   }
 };
 
+// 게시글에 좋아요 하기
+const likeArticle = async (articleId) => {
+  try {
+    const url = `/articles/${articleId}/like`;
+    const response = await client.post(url);
+    return response.data;
+  } catch (error) {
+    errorHandler(error);
+  }
+};
+
+// 게시글에 좋아요 취소하기
+const unLikeArticle = async (articleId) => {
+  try {
+    const url = `/articles/${articleId}/unlike`;
+    const response = await client.delete(url);
+    return response.data;
+  } catch (error) {
+    errorHandler(error);
+  }
+};
+
 /**********************************************************************************
  * 댓글(comments) 관련 API
  */
 
 // panda 마켓 - cursor가 숫자, 그 외에는 ''
 // 댓글 목록 조회 - 게시글
-const getCommentsOfArticle = async (articleId, { limit = 3, cursor = 0 }) => {
+const getCommentsOfArticle = async (articleId, { limit = 3, cursor = '' }) => {
   try {
     const query = `limit=${limit}&cursor=${cursor}`;
     const url = `/articles/${articleId}/comments?${query}`;
@@ -183,7 +208,7 @@ const editComment = async (commentId, content) => {
 
 // panda 마켓 - cursor가 숫자, 그 외에는 ''
 // 댓글 목록 조회 - 상품
-const getCommentsOfProduct = async (productId, { limit = 3, cursor = 0 }) => {
+const getCommentsOfProduct = async (productId, { limit = 3, cursor = '' }) => {
   try {
     const query = `limit=${limit}&cursor=${cursor}`;
     const url = `/products/${productId}/comments?${query}`;
@@ -210,27 +235,19 @@ const postProductComment = async (productId, commentData) => {
  */
 // 상품 목록 조회
 const getProducts = async ({
-  orderBy = 'recent',
-  page = 1,
+  sort = 'recent',
+  skip = 0,
   keyword = '',
-  pageSize = 0,
-  // sort = 'latest',
-  // skip = 0,
-  // keyword = '',
-  // limit = 0,
+  limit = 0,
 }) => {
   try {
     const url = '/products';
     const response = await client.get(url, {
       params: {
-        orderBy,
-        page,
+        sort,
+        skip,
         keyword,
-        pageSize,
-        // sort,
-        // skip,
-        // keyword,
-        // limit,
+        limit,
       },
     });
     return response.data;
@@ -253,8 +270,20 @@ const getProduct = async (productId) => {
 // 상품 등록
 const postProduct = async (productData) => {
   try {
+    const { name, description, price, tags, writer, images } = productData;
+    console.log('axios productData', productData);
+    // file을 전달하므로 반드시 formData형식으로 전달
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('description', description);
+    formData.append('price', price);
+    formData.append('tags', tags);
+    formData.append('writer', writer);
+    images.forEach((image) => formData.append('imgUrls', image));
+    // formData.append('images', images);
+
     const url = '/products';
-    const response = await client.post(url, productData);
+    const response = await client.post(url, formData);
     return response.data;
   } catch (error) {
     errorHandler(error);
@@ -290,7 +319,7 @@ const editProduct = async (productId, productData) => {
 // 상품에 좋아요 하기
 const likeProduct = async (productId) => {
   try {
-    const url = `/products/${productId}/favorite`;
+    const url = `/products/${productId}/like`;
     const response = await client.post(url);
     return response.data;
   } catch (error) {
@@ -301,7 +330,7 @@ const likeProduct = async (productId) => {
 // 상품에 좋아요 취소하기
 const unLikeProduct = async (productId) => {
   try {
-    const url = `/products/${productId}/favorite`;
+    const url = `/products/${productId}/unlike`;
     const response = await client.delete(url);
     return response.data;
   } catch (error) {
@@ -314,7 +343,7 @@ const unLikeProduct = async (productId) => {
  */
 // 회원 가입
 const signUp = async (dto) => {
-  const url = '/auth/signUp';
+  const url = '/users/sign-up';
   const response = await client.post(url, dto);
   const data = response.data;
 
@@ -342,11 +371,16 @@ const signUp = async (dto) => {
 
 // 로그인
 const logIn = async (dto) => {
-  const url = '/auth/signIn';
+  const url = '/users/log-in';
   const response = await client.post(url, dto);
   const data = response.data;
 
   const { accessToken, refreshToken } = data;
+
+  // 이후 요청의 헤더에 토큰이 실려갈 수 있도록 조치
+  // interceptor 적용 후 삭제하였으나 getProduct 요청 시 토큰이 탑재되지 않아 다시 넣어봄
+  client.defaults.headers.Authorization = `Bearer ${accessToken}`;
+
   // 로컬 스토리지에 토큰 저장
   localStorage.setItem('accessToken', accessToken);
   localStorage.setItem('refreshToken', refreshToken);
@@ -375,9 +409,14 @@ const logIn = async (dto) => {
 // refreshToken
 const refreshToken = async (prevRefreshToken) => {
   try {
-    const url = '/auth/refresh-token';
+    const url = '/users/refresh-token';
     const response = await client.post(url, { refreshToken: prevRefreshToken });
     const data = response.data;
+
+    const { accessToken, refreshToken } = data;
+    // 로컬 스토리지에 토큰 저장
+    localStorage.setItem('accessToken', accessToken);
+    localStorage.setItem('refreshToken', refreshToken);
 
     return data;
   } catch (error) {
@@ -402,6 +441,8 @@ const api = {
   postArticle,
   editArticle,
   deleteArticle,
+  likeArticle,
+  unLikeArticle,
   getCommentsOfArticle,
   postArticleComment,
   deleteComment,
