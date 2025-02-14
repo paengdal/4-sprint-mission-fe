@@ -50,7 +50,7 @@ function SignUpPage() {
 
   const handleClickConfirm = () => {
     router.push('/products');
-    logIn();
+    // logIn();
     modal.close();
   };
 

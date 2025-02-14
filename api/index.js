@@ -23,8 +23,13 @@ function errorHandler(error) {
 // - headers에 accessToken 실어 보내기
 client.interceptors.request.use(
   (config) => {
+    if (
+      config.url === '/users/refresh-token' ||
+      config.url === '/users/sign-up' ||
+      config.url === '/users/log-in'
+    )
+      return config;
     console.log('do interceptor');
-    if (config.url === '/users/refresh-token') return config;
     let accessToken;
     if (typeof window !== 'undefined') {
       accessToken = localStorage.getItem('accessToken');
@@ -271,7 +276,6 @@ const getProduct = async (productId) => {
 const postProduct = async (productData) => {
   try {
     const { name, description, price, tags, writer, images } = productData;
-    console.log('axios productData', productData);
     // file을 전달하므로 반드시 formData형식으로 전달
     const formData = new FormData();
     formData.append('name', name);
@@ -280,7 +284,6 @@ const postProduct = async (productData) => {
     formData.append('tags', tags);
     formData.append('writer', writer);
     images.forEach((image) => formData.append('imgUrls', image));
-    // formData.append('images', images);
 
     const url = '/products';
     const response = await client.post(url, formData);
@@ -303,17 +306,23 @@ const deleteProduct = async (productId) => {
 
 // 상품 수정
 const editProduct = async (productId, productData) => {
-  // try {
-  //   const url = `/products/${productId}`;
-  //   const response = await client.patch(url, productData);
-  //   throw new Error('일부러 낸 에러입니다.');
-  //   // return response.data;
-  // } catch (error) {
-  //   errorHandler(error);
-  // }
-  const url = `/products/${productId}`;
-  const response = await client.patch(url, productData);
-  throw new Error('일부러 낸 에러입니다.');
+  try {
+    const { name, description, price, tags, writer, images } = productData;
+    // file을 전달하므로 반드시 formData형식으로 전달
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('description', description);
+    formData.append('price', price);
+    formData.append('tags', tags);
+    formData.append('writer', writer);
+    images.forEach((image) => formData.append('imgUrls', image));
+
+    const url = `/products/${productId}`;
+    const response = await client.patch(url, formData);
+    return response.data;
+  } catch (error) {
+    errorHandler(error);
+  }
 };
 
 // 상품에 좋아요 하기
@@ -347,10 +356,10 @@ const signUp = async (dto) => {
   const response = await client.post(url, dto);
   const data = response.data;
 
-  const { accessToken, refreshToken } = data;
-  // 로컬 스토리지에 토큰 저장
-  localStorage.setItem('accessToken', accessToken);
-  localStorage.setItem('refreshToken', refreshToken);
+  // const { accessToken, refreshToken } = data;
+  // // 로컬 스토리지에 토큰 저장
+  // localStorage.setItem('accessToken', accessToken);
+  // localStorage.setItem('refreshToken', refreshToken);
 
   return data;
   // try {
@@ -376,10 +385,6 @@ const logIn = async (dto) => {
   const data = response.data;
 
   const { accessToken, refreshToken } = data;
-
-  // 이후 요청의 헤더에 토큰이 실려갈 수 있도록 조치
-  // interceptor 적용 후 삭제하였으나 getProduct 요청 시 토큰이 탑재되지 않아 다시 넣어봄
-  client.defaults.headers.Authorization = `Bearer ${accessToken}`;
 
   // 로컬 스토리지에 토큰 저장
   localStorage.setItem('accessToken', accessToken);
@@ -410,7 +415,7 @@ const logIn = async (dto) => {
 const refreshToken = async (prevRefreshToken) => {
   try {
     const url = '/users/refresh-token';
-    const response = await client.post(url, { refreshToken: prevRefreshToken });
+    const response = await client.post(url, { prevRefreshToken });
     const data = response.data;
 
     const { accessToken, refreshToken } = data;

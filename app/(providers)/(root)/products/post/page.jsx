@@ -22,7 +22,6 @@ function ProductPostPage() {
     handleSubmit,
     setValue,
     setError,
-    watch,
     formState: { errors, isValid },
   } = useForm({
     mode: 'onBlur',
@@ -31,7 +30,6 @@ function ProductPostPage() {
       description: '',
       price: '',
       tag: '',
-      // image: null,
     },
   });
   const modal = useModal();
@@ -41,7 +39,7 @@ function ProductPostPage() {
   const queryClient = useQueryClient();
   const fileInputRef = useRef();
   const [pickedImages, setPickedImages] = useState([]);
-  // const [pickedImage, setPickedImage] = useState(null);
+  const [imgUrls, setImgUrls] = useState([]);
 
   const isTagsNotEmpty = tags.length !== 0;
   const pickedImagesNotEmpty = pickedImages.length !== 0;
@@ -95,7 +93,6 @@ function ProductPostPage() {
       writer: userInfo.nickname,
       price: Number(price),
       images: pickedImages,
-      // images: ['ddd'],
     };
     createProduct(reqData);
   };
@@ -107,6 +104,7 @@ function ProductPostPage() {
     ]);
   };
 
+  // 이미지 업로드(file input) 관련
   const handleChangeImages = (e) => {
     if (!e.target.files) rerturn;
     const fileList = e.target.files;
@@ -117,7 +115,9 @@ function ProductPostPage() {
         <AlertModal alertMessage="이미지는 최대 3개까지 등록 가능합니다." />
       );
     setPickedImages(fileArray);
-    e.target.value = '';
+    const pickedImgUrls = fileArray.map((file) => URL.createObjectURL(file));
+    setImgUrls(pickedImgUrls);
+    e.target.value = ''; // 이 코드가 없으면 첨부 취소 후 동일한 파일을 다시 올릴 때 에러 발생
   };
 
   const handleClickAddImageButton = () => {
@@ -125,10 +125,10 @@ function ProductPostPage() {
   };
 
   const handleClickDeleteImageButton = (idx) => {
-    if (pickedImages.length > 1) {
-      setPickedImages(pickedImages.filter((_, index) => index !== idx));
+    if (imgUrls.length > 1) {
+      setImgUrls(imgUrls.filter((_, index) => index !== idx));
     } else {
-      setPickedImages([]);
+      setImgUrls([]);
     }
   };
 
@@ -190,28 +190,18 @@ function ProductPostPage() {
               <input
                 id="images"
                 type="file"
-                {...register('images', {
-                  // validate: {
-                  //   isNotEmpty: (value) => {
-                  //     return pickedImages.length === 0
-                  //       ? '이미지 1개는 반드시 첨부해야 합니다'
-                  //       : pickedImages.length > 3
-                  //       ? '이미지는 최대 3개까지 가능합니다'
-                  //       : true;
-                  //   },
-                  // },
-                })}
+                {...register('images', {})}
                 accept="image/*"
                 multiple
                 className="hidden"
                 ref={fileInputRef}
                 onChange={handleChangeImages}
               />
-              {pickedImages.length > 0 &&
-                pickedImages.map((image, index) => (
-                  <div className="relative" key={image + index}>
+              {imgUrls !== null && imgUrls.length !== 0 ? (
+                imgUrls.map((imgUrl, index) => (
+                  <div className="relative" key={imgUrl + index}>
                     <Image
-                      src={URL.createObjectURL(image)}
+                      src={imgUrl}
                       alt="첨부이미지"
                       fill
                       className="rounded-xl aspect-square object-cover"
@@ -225,7 +215,10 @@ function ProductPostPage() {
                       />
                     </div>
                   </div>
-                ))}
+                ))
+              ) : (
+                <div></div>
+              )}
             </div>
             <label htmlFor="name" className="text-lg font-bold mb-4">
               상품명
