@@ -5,7 +5,7 @@ export interface ArticleEntity {
   writer: string;
   title: string;
   content: string;
-  count: number;
+  _count: { articleLikes: number };
   isFavorite: boolean;
   createdAt: Date;
   updatedAt: Date;

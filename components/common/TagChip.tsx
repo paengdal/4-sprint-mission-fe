@@ -9,6 +9,7 @@ interface Props {
 
 function TagChip({ tag, onClick, index }: Props) {
   const handleClick = () => {
+    if (!onClick || !index) return;
     onClick(index);
   };
   return (

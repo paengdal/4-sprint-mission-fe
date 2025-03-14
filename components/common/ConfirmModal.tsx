@@ -2,16 +2,22 @@ import { useModal } from '@/contexts/ModalContext';
 import Button from './Button';
 import Modal from './Modal';
 
-function ConfirmModal({ confirmMessage, onClickConfirm }) {
+function ConfirmModal({
+  confirmMessage,
+  onClickConfirm,
+}: {
+  confirmMessage: string;
+  onClickConfirm: any;
+}) {
   const modal = useModal();
 
   const handleClickConfirm = () => {
     onClickConfirm();
-    modal.close();
+    modal.close?.();
   };
 
   const handleClickCancel = () => {
-    modal.close();
+    modal.close?.();
   };
 
   return (

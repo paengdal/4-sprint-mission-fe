@@ -1,6 +1,8 @@
 'use client';
 
-function Modal({ children }) {
+import { ReactNode } from 'react';
+
+function Modal({ children }: { children: ReactNode }) {
   return (
     <div className="z-10 fixed top-0 bottom-0 left-0 right-0 bg-black/70 flex items-center justify-center">
       {children}

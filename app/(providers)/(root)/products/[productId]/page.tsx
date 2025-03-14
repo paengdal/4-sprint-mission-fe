@@ -8,7 +8,11 @@ import {
   QueryClient,
 } from '@tanstack/react-query';
 
-async function ProductDetailPage({ params }) {
+type Params = Promise<{
+  productId: string;
+}>;
+
+async function ProductDetailPage({ params }: { params: Params }) {
   const queryClient = new QueryClient();
   const { productId } = await params;
 

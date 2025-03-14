@@ -47,7 +47,10 @@ function ProductList() {
   //   isTablet ? 6 : isMobile ? 4 : 10
   // );
 
-  const { data: result } = useQuery({
+  const { data: result } = useQuery<{
+    products: ProductListItemDto[];
+    searchCount: number;
+  }>({
     queryKey: ['products', { ...options }],
     queryFn: () => {
       return api.getProducts(options);
@@ -63,8 +66,8 @@ function ProductList() {
   });
   // const { list: products, totalCount } = result; // https://panda-market-api.vercel.app/products 사용 시
   // const maxPage = Math.ceil(totalCount / options.pageSize); // https://panda-market-api.vercel.app/products 사용 시
-  const products: ProductListItemDto[] = result?.products || [];
-  const searchCount: number = result?.searchCount || 0;
+  const products = result?.products || [];
+  const searchCount = result?.searchCount || 0;
   const maxPage = Math.ceil(searchCount / options.limit);
 
   const handleSubmit: FormEventHandler = (e) => {
@@ -82,7 +85,7 @@ function ProductList() {
 
   const handleClickRegitstBtn = () => {
     if (!isLoggedIn)
-      return modal.open(
+      return modal.open?.(
         <AlertModal alertMessage="로그인이 필요한 서비스입니다." />
       );
 

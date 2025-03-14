@@ -1,7 +1,7 @@
 import imgSection01 from '@/assets/images/img-home-01.png';
 import imgSection02 from '@/assets/images/img-home-02.png';
 import imgSection03 from '@/assets/images/img-home-03.png';
-import Image from 'next/image';
+import Image, { StaticImageData } from 'next/image';
 
 const SECTION_DATA = [
   {
@@ -30,7 +30,21 @@ const SECTION_DATA = [
   },
 ];
 
-function Section({ section, index }) {
+interface SectionData {
+  img: StaticImageData;
+  badge: string;
+  title1: string;
+  title2: string;
+  desc1: string;
+  desc2: string;
+}
+
+interface Props {
+  section: SectionData;
+  index: number;
+}
+
+function Section({ section, index }: Props) {
   const { img, badge, title1, title2, desc1, desc2 } = section;
   const classNameContent =
     index % 2 === 0 ? 'pl-[50px] w-[420px]' : 'pr-[50px] w-[420px] text-right';

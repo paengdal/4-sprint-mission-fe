@@ -29,7 +29,7 @@ function CommentItem({ comment, onDelete, onRegistEdit }: Props) {
 
   const handleRegistEditClick = () => {
     if (!isLoggedIn)
-      return modal.open(
+      return modal.open?.(
         <AlertModal alertMessage="로그인이 필요한 서비스입니다." />
       );
     onRegistEdit(comment.id, editedContent);

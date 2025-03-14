@@ -15,7 +15,7 @@ function ProductItem({ product }: { product: ProductListItemDto }) {
 
   const handleClickProduct = () => {
     if (!isLoggedIn)
-      return modal.open(
+      return modal.open?.(
         <AlertModal alertMessage="로그인이 필요한 서비스입니다." />
       );
     router.push(`/products/${id}`);

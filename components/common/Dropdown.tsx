@@ -2,13 +2,17 @@
 
 import { useState } from 'react';
 
-export const DropdownMenu = ({ onSelect }) => {
+export const DropdownMenu = ({
+  onSelect,
+}: {
+  onSelect: (value: string) => void;
+}) => {
   const MENU_ITEMS = [
     { text: '최신순', value: 'latest' },
     { text: '좋아요순', value: 'favorite' },
   ];
 
-  const handleClick = (value) => () => {
+  const handleClick = (value: string) => () => {
     onSelect(value);
   };
 
@@ -27,7 +31,13 @@ export const DropdownMenu = ({ onSelect }) => {
   );
 };
 
-const Dropdown = ({ onSelect, value }) => {
+const Dropdown = ({
+  onSelect,
+  value,
+}: {
+  onSelect: (sortOption: string) => void;
+  value: string;
+}) => {
   const [label, setLabel] = useState(value);
   const [isDropdownView, setDropdownView] = useState(false);
   const labelText =
@@ -50,7 +60,7 @@ const Dropdown = ({ onSelect, value }) => {
     }, 200);
   };
 
-  const handleMenuSelect = (sortOption) => {
+  const handleMenuSelect = (sortOption: string) => {
     onSelect(sortOption);
     setLabel(sortOption);
     setDropdownView(!isDropdownView);

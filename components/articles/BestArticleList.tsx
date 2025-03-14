@@ -1,11 +1,12 @@
 'use client';
 
 import api from '@/api';
+import { ArticleListDto } from '@/types/dtos/article.dto';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import BestArticleCard from './BestArticleCard';
 
-function BestArticleList({ initialData }) {
+function BestArticleList({ initialData }: { initialData: ArticleListDto[] }) {
   const { data, isFetching, isPending, isLoading } = useQuery({
     // queryFn: () => api.getArticles({ pageSize: 3, orderBy: 'recent' }), // panda 마켓
     queryFn: () => api.getArticles({ limit: 3, sort: 'recent' }),
@@ -18,7 +19,7 @@ function BestArticleList({ initialData }) {
   });
 
   // const articles = data?.list.slice(0, 3) || []; // panda 마켓
-  const articles = data?.slice(0, 3) || [];
+  const articles: ArticleListDto[] = data?.slice(0, 3) || [];
 
   if (isFetching || isLoading || isPending) return <div>로딩 중</div>;
   return (

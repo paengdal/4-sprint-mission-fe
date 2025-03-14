@@ -59,10 +59,10 @@ function ProductPostPage() {
       function handleClickSuccess() {
         router.replace(`/products`);
         // router.replace(`/products/${product.id}`);
-        modal.close();
+        modal.close?.();
       }
       queryClient.invalidateQueries({ queryKey: ['products'] });
-      modal.open(
+      modal.open?.(
         <AlertModal
           alertMessage="상품이 정상적으로 등록되었습니다."
           onClick={handleClickSuccess}
@@ -73,12 +73,12 @@ function ProductPostPage() {
 
   const handleClickModalConfirm = () => {
     router.replace('/auth/log-in');
-    modal.close();
+    modal.close?.();
   };
 
   const checkIsLoggedIn = () => {
     if (!isLoggedIn)
-      return modal.open(
+      return modal.open?.(
         <AlertModal
           alertMessage="로그인이 필요한 서비스입니다."
           onClick={handleClickModalConfirm}
@@ -92,7 +92,7 @@ function ProductPostPage() {
   };
 
   const onSubmit = (dto: InputData) => {
-    if (!isLoggedIn || !isPossibleRegist) return;
+    if (!isLoggedIn || !isPossibleRegist || !userInfo) return;
     const { name, description, price } = dto;
     const reqDto: ProductPostDto = {
       name,
@@ -121,7 +121,7 @@ function ProductPostPage() {
     const fileArray = Array.from(fileList); // iterable을 array로 변경(map method를 쓰기 위해)
 
     if (fileArray.length > 3)
-      return modal.open(
+      return modal.open?.(
         <AlertModal alertMessage="이미지는 최대 3개까지 등록 가능합니다." />
       );
     setPickedImages(fileArray);
@@ -131,6 +131,7 @@ function ProductPostPage() {
   };
 
   const handleClickAddImageButton = () => {
+    if (!fileInputRef.current) return;
     fileInputRef.current.click();
   };
 

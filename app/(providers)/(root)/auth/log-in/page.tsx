@@ -49,24 +49,24 @@ function LogInPage() {
     mutationFn: (userData: UserLoginDto) => api.logIn(userData),
     onSuccess: () => {
       router.push('/products');
-      authLogin();
+      authLogin?.();
     },
     onError: (error) => {
-      if (error instanceof AxiosError) {
+      if (error instanceof AxiosError && error.response) {
         const errorMessage = error.response.data;
         if (errorMessage === 'No user founded') {
-          modal.open(
+          modal.open?.(
             <AlertModal alertMessage={'존재하지 않는 이메일입니다.'} />
           );
           setError('email', { message: '이메일을 확인해 주세요' });
         } else if (errorMessage === 'Wrong password') {
-          modal.open(
+          modal.open?.(
             <AlertModal alertMessage={'비밀번호가 일치하지 않습니다'} />
           );
           setError('password', { message: '비밀번호를 확인해 주세요' });
         }
       } else {
-        modal.open(
+        modal.open?.(
           <AlertModal alertMessage={'에러가 발생했습니다. 다시 시도해주세요'} />
         );
       }
@@ -170,7 +170,7 @@ function LogInPage() {
           </form>
           <AuthFooter isLogin={true} />
         </div>
-        <DevT control={control as any} />
+        {/* <DevT control={control as any} /> */}
       </div>
     </PageContainer>
   );

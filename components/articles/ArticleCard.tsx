@@ -1,10 +1,11 @@
 import defaultProduct from '@/assets/images/default_product.png';
 import icHeart from '@/assets/images/ic_heart.png';
 import icProfile from '@/assets/images/ic_profile.png';
+import { ArticleCardDto } from '@/types/dtos/article.dto';
 import { formattedDate } from '@/utils/formattedDate';
 import Image from 'next/image';
 
-function ArticleCard({ article }) {
+function ArticleCard({ article }: { article: ArticleCardDto }) {
   return (
     <div className="bg-[#f9fafb] border-b mb-6">
       <div className="flex my-4">

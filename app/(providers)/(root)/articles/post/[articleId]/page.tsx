@@ -51,12 +51,12 @@ function ArticleEditPage() {
     onSuccess: () => {
       function handleClickSuccess() {
         router.replace(`/articles/${articleId}`);
-        modal.close();
+        modal.close?.();
       }
       // 게시글 수정 후 게시글 상세와 목록을 갱신
       queryClient.invalidateQueries({ queryKey: ['article', { articleId }] });
       queryClient.invalidateQueries({ queryKey: ['articles'] });
-      modal.open(
+      modal.open?.(
         <AlertModal
           alertMessage="게시글이 정상적으로 수정되었습니다."
           onClick={handleClickSuccess}

@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import api from '../../api';
 import { useModal } from '../../contexts/ModalContext';
 import ConfirmModal from './ConfirmModal';
+import { PopupMenuProps } from './PopMenuButton';
 
 export const DropdownMenu = ({
   isCommentBtn,
@@ -11,21 +12,21 @@ export const DropdownMenu = ({
   commentId,
   postId,
   postType,
-}) => {
+}: PopupMenuProps) => {
   const router = useRouter();
   const modal = useModal();
   const queryClient = useQueryClient();
 
   // 상품 삭제
   const { mutate: removeProduct } = useMutation({
-    mutationFn: () => api.deleteProduct(postId),
+    mutationFn: () => (postId ? api.deleteProduct(postId) : Promise.resolve()),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
       router.push('/products');
     },
   });
   const deleteProduct = async () => {
-    modal.open(
+    modal.open?.(
       <ConfirmModal
         confirmMessage={'삭제하시겠습니까?'}
         onClickConfirm={removeProduct}
@@ -34,14 +35,14 @@ export const DropdownMenu = ({
   };
   // 게시글 삭제
   const { mutate: removeArticle } = useMutation({
-    mutationFn: () => api.deleteArticle(postId),
+    mutationFn: () => (postId ? api.deleteArticle(postId) : Promise.resolve()),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['articles'] });
       router.push('/articles');
     },
   });
   const deleteArticle = async () => {
-    modal.open(
+    modal.open?.(
       <ConfirmModal
         confirmMessage={'삭제하시겠습니까?'}
         onClickConfirm={removeArticle}
@@ -58,15 +59,18 @@ export const DropdownMenu = ({
   };
   // 댓글 삭제
   const deleteComment = () => {
-    modal.open(
+    modal.open?.(
       <ConfirmModal
         confirmMessage={'삭제하시겠습니까?'}
-        onClickConfirm={() => onDelete(commentId)}
+        onClickConfirm={
+          onDelete && commentId ? () => onDelete(commentId) : undefined
+        }
       />
     );
   };
   // 댓글 수정
   const editComment = () => {
+    if (!onEdit) return;
     onEdit(true);
   };
   const MENU_ITEMS = [

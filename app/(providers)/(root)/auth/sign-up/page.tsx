@@ -53,13 +53,13 @@ function SignUpPage() {
   const handleClickConfirm = () => {
     router.push('/products');
     // logIn();
-    modal.close();
+    modal.close?.();
   };
 
   const { mutate: signUp, isPending } = useMutation({
     mutationFn: (userData: UserSignUpDto) => api.signUp(userData),
     onSuccess: () => {
-      modal.open(
+      modal.open?.(
         <AlertModal
           alertMessage={'가입 완료되었습니다.'}
           onClick={handleClickConfirm}
@@ -67,21 +67,21 @@ function SignUpPage() {
       );
     },
     onError: (error) => {
-      if (error instanceof AxiosError) {
+      if (error instanceof AxiosError && error.response) {
         const errorMessage = error.response.data;
         if (errorMessage === 'Already used email') {
-          modal.open(
+          modal.open?.(
             <AlertModal alertMessage={'이미 사용중인 이메일입니다.'} />
           );
           setError('email', { message: '이메일을 확인해 주세요' });
         } else if (errorMessage === '이미 사용중인 닉네임입니다.') {
-          modal.open(
+          modal.open?.(
             <AlertModal alertMessage={'이미 사용중인 닉네임입니다.'} />
           );
           setError('nickname', { message: '닉네임을 확인해 주세요' });
         }
       } else {
-        modal.open(
+        modal.open?.(
           <AlertModal alertMessage={'에러가 발생했습니다. 다시 시도해주세요'} />
         );
       }
@@ -244,7 +244,7 @@ function SignUpPage() {
           </form>
           <AuthFooter />
         </div>
-        <DevT control={control as any} />
+        {/* <DevT control={control as any} /> */}
       </div>
     </PageContainer>
   );

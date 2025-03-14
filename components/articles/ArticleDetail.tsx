@@ -52,7 +52,7 @@ function ArticleDetail({ articleId, initialData }: Props) {
 
   const handleClickHeartImage = () => {
     if (!isLoggedIn)
-      return modal.open(
+      return modal.open?.(
         <AlertModal alertMessage="로그인이 필요한 서비스입니다." />
       );
     if (article.isFavorite) {
@@ -61,6 +61,8 @@ function ArticleDetail({ articleId, initialData }: Props) {
       likeArticle();
     }
   };
+
+  console.log('article', article);
 
   return (
     <div>
@@ -82,7 +84,7 @@ function ArticleDetail({ articleId, initialData }: Props) {
             alt="heart"
             onClick={handleClickHeartImage}
           />
-          <p>{article.count}</p>
+          <p>{article._count.articleLikes}</p>
         </div>
       </div>
       <p className="text-lg">{lineBreakText(article.content)}</p>

@@ -37,18 +37,20 @@ function ArticlePostPage() {
 
   const { mutate: createArticle, isPending } = useMutation({
     mutationFn: () =>
-      api.postArticle({
-        writer: userInfo.nickname,
-        title: inputTitle,
-        content: inputContent,
-      }),
+      userInfo
+        ? api.postArticle({
+            writer: userInfo.nickname,
+            title: inputTitle,
+            content: inputContent,
+          })
+        : Promise.resolve(),
     onSuccess: (data) => {
       function handleClickSuccess() {
         router.replace(`/articles/${data.id}`);
-        modal.close();
+        modal.close?.();
       }
       queryClient.invalidateQueries({ queryKey: ['articles'] });
-      modal.open(
+      modal.open?.(
         <AlertModal
           alertMessage="게시글이 정상적으로 등록되었습니다."
           onClick={handleClickSuccess}

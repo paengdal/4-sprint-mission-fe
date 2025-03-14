@@ -9,7 +9,7 @@ import { useModal } from '../../contexts/ModalContext';
 import AlertModal from './AlertModal';
 import { DropdownMenu } from './DropDownMenu';
 
-interface Props {
+export interface PopupMenuProps {
   isCommentBtn?: boolean;
   onDelete?: (commentId: string) => void;
   onEdit?: (isEditing: boolean) => void;
@@ -25,7 +25,7 @@ function PopMenuButton({
   commentId,
   postId,
   postType,
-}: Props) {
+}: PopupMenuProps) {
   const [isShowDropdown, setIsShowDropdown] = useState(false);
   const buttonRef = useRef<HTMLImageElement | null>(null);
   const modal = useModal();
@@ -37,7 +37,7 @@ function PopMenuButton({
 
   const handleMenuClick = () => {
     if (!isLoggedIn)
-      return modal.open(
+      return modal.open?.(
         <AlertModal alertMessage="로그인이 필요한 서비스입니다." />
       );
     setTimeout(() => setIsShowDropdown(!isShowDropdown), 200);
@@ -48,8 +48,9 @@ function PopMenuButton({
      * 빈 공간 클릭 시 또는 다른 댓글의 버튼 클릭 시 메뉴가 닫히도록 하기 위해
      * - buttonRef없이 window listner만 적용할 경우 메뉴가 열려 있을 때 버튼을 누르면 닫히지 않음
      */
-    const handleClick = (e) => {
-      if (buttonRef.current && !buttonRef.current.contains(e.target)) {
+    const buttonInstance = buttonRef.current;
+    const handleClick: EventListener = (e) => {
+      if (buttonInstance && !buttonInstance.contains(e.target as HTMLElement)) {
         setTimeout(() => setIsShowDropdown(false), 200);
       }
     };

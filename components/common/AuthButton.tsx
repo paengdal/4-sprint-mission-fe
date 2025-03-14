@@ -11,7 +11,7 @@ function AuthButton() {
 
   console.log('In authButton', isLoggedIn, isAuthInitialized, userInfo);
   const handleClickProfile = () => {
-    logOut();
+    logOut?.();
   };
   if (!isAuthInitialized) return null;
 

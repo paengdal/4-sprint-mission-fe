@@ -1,6 +1,7 @@
 'use client';
 
 import api from '@/api';
+import { ProductListItemDto } from '@/types/dtos/product.dto';
 import { useQuery } from '@tanstack/react-query';
 import ProductItem from './ProductItem';
 
@@ -16,7 +17,7 @@ function BestProductList() {
       }),
   });
 
-  const products = result?.products || [];
+  const products: ProductListItemDto[] = result?.products || [];
 
   return (
     <div className="mb-10">

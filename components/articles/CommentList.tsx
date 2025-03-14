@@ -42,15 +42,18 @@ function CommentList({ articleId, productId }: Props) {
 
   const { mutate: postComment, isPending: isPendingPost } = useMutation({
     mutationFn: (content: string) =>
-      articleId
+      articleId && userInfo
         ? api.postArticleComment(articleId, {
             writer: userInfo.nickname,
             content,
           })
-        : api.postProductComment(productId, {
+        : productId && userInfo
+        ? api.postProductComment(productId, {
             writer: userInfo.nickname,
             content,
-          }),
+          })
+        : Promise.resolve(),
+
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ['comments', articleId ? { articleId } : { productId }],
@@ -80,7 +83,7 @@ function CommentList({ articleId, productId }: Props) {
   const handleRegistClick = async () => {
     if (!isBtnActive) return;
     if (!isLoggedIn)
-      return modal.open(
+      return modal.open?.(
         <AlertModal alertMessage="로그인이 필요한 서비스입니다." />
       );
     setIsSubmitting(true);

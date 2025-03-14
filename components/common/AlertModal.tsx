@@ -14,7 +14,7 @@ function AlertModal({ alertMessage, onClick }: Props) {
     if (onClick) {
       onClick();
     } else {
-      modal.close();
+      modal.close?.();
     }
   };
   return (

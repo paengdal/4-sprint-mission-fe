@@ -1,8 +1,9 @@
 import { AuthProvider } from '@/contexts/AuthContext';
 import { ModalProvider } from '@/contexts/ModalContext';
 import TanstackQueryProvider from '@/libs/tanstack-query';
+import { ReactNode } from 'react';
 
-function ProvidersLayout({ children }) {
+function ProvidersLayout({ children }: { children: ReactNode }) {
   return (
     <TanstackQueryProvider>
       <AuthProvider>

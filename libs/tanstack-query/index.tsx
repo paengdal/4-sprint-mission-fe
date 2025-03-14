@@ -7,7 +7,6 @@ import {
   QueryClient,
   QueryClientProvider,
 } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 function makeQueryClient() {
   return new QueryClient({
@@ -21,7 +20,7 @@ function makeQueryClient() {
   });
 }
 
-let browserQueryClient = undefined;
+let browserQueryClient: QueryClient | undefined = undefined;
 
 function getQueryClient() {
   if (isServer) {
@@ -37,7 +36,7 @@ function getQueryClient() {
   }
 }
 
-export default function TanstackQueryProvider({ children }) {
+export default function Providers({ children }: { children: React.ReactNode }) {
   // NOTE: Avoid useState when initializing the query client if you don't
   //       have a suspense boundary between this and the code that may
   //       suspend because React will throw away the client on the initial
@@ -45,9 +44,6 @@ export default function TanstackQueryProvider({ children }) {
   const queryClient = getQueryClient();
 
   return (
-    <QueryClientProvider client={queryClient}>
-      {children}
-      <ReactQueryDevtools />
-    </QueryClientProvider>
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   );
 }

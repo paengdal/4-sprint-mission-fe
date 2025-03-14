@@ -28,7 +28,7 @@ function ProductDetail({ productId, initialData }: Props) {
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  const { data } = useQuery({
+  const { data: product } = useQuery<ProductDetailDto>({
     queryKey: ['product', { productId }],
     queryFn: () => api.getProduct(productId),
     staleTime: 0,
@@ -54,9 +54,10 @@ function ProductDetail({ productId, initialData }: Props) {
 
   const handleClickHeartImage = () => {
     if (!isLoggedIn)
-      return modal.open(
+      return modal.open?.(
         <AlertModal alertMessage="로그인이 필요한 서비스입니다." />
       );
+    if (!product) return;
     if (product.isFavorite) {
       unLikeProduct();
     } else {
@@ -66,27 +67,18 @@ function ProductDetail({ productId, initialData }: Props) {
 
   const handleClickModalConfirm = () => {
     router.replace('/auth/log-in');
-    modal.close();
+    modal.close?.();
   };
 
   const checkIsLoggedIn = () => {
     if (!isLoggedIn)
-      return modal.open(
+      return modal.open?.(
         <AlertModal
           alertMessage="로그인이 필요한 서비스입니다."
           onClick={handleClickModalConfirm}
         />
       );
   };
-
-  const product: ProductDetailDto = data || null;
-
-  console.log(product);
-
-  // useEffect(() => {
-  //   // /products/post로 접근 시 로그인 여부 체크
-  //   checkIsLoggedIn();
-  // }, [isLoggedIn]);
 
   if (!product) return null;
 

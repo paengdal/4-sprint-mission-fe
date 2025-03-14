@@ -74,12 +74,12 @@ function ProductEditPage() {
       function handleClickSuccess() {
         router.replace(`/products`);
         // router.replace(`/products/${productId}`);
-        modal.close();
+        modal.close?.();
       }
       // 상품 수정 후 상품 상세와 목록을 갱신
       // queryClient.invalidateQueries({ queryKey: ['product', { productId }] });
       queryClient.invalidateQueries({ queryKey: ['products'] });
-      modal.open(
+      modal.open?.(
         <AlertModal
           alertMessage="상품이 정상적으로 수정되었습니다."
           onClick={handleClickSuccess}
@@ -90,12 +90,12 @@ function ProductEditPage() {
 
   const handleClickModalConfirm = () => {
     router.replace('/auth/log-in');
-    modal.close();
+    modal.close?.();
   };
 
   const checkIsLoggedIn = () => {
     if (!isLoggedIn)
-      return modal.open(
+      return modal.open?.(
         <AlertModal
           alertMessage="로그인이 필요한 서비스입니다."
           onClick={handleClickModalConfirm}
@@ -109,7 +109,7 @@ function ProductEditPage() {
   };
 
   const onSubmit = (data: InputData) => {
-    if (!isLoggedIn || !isPossibleRegist) return;
+    if (!isLoggedIn || !isPossibleRegist || !userInfo) return;
     const { name, description, price } = data;
     const formData: ProductPostDto = {
       name,
@@ -137,7 +137,7 @@ function ProductEditPage() {
     const fileArray = Array.from(fileList); // iterable을 array로 변경(map method를 쓰기 위해)
 
     if (fileArray.length > 3)
-      return modal.open(
+      return modal.open?.(
         <AlertModal alertMessage="이미지는 최대 3개까지 등록 가능합니다." />
       );
     setPickedImages(fileArray);
@@ -147,6 +147,7 @@ function ProductEditPage() {
   };
 
   const handleClickAddImageButton = () => {
+    if (!fileInputRef.current) return;
     fileInputRef.current.click();
   };
 
@@ -264,7 +265,7 @@ function ProductEditPage() {
                 maxLength: { value: 20, message: '20글자 이내로 입력해주세요' },
               })}
             />
-            {!isValid && (
+            {errors.name?.message && (
               <span className="ml-4 mt-2 text-[15px] font-semibold text-[#F74747]">
                 {errors.name?.message.toString()}
               </span>
@@ -288,7 +289,7 @@ function ProductEditPage() {
                 },
               })}
             />
-            {!isValid && (
+            {errors.description?.message && (
               <span className="ml-4 mt-2 text-[15px] font-semibold text-[#F74747]">
                 {errors.description?.message.toString()}
               </span>
@@ -315,7 +316,7 @@ function ProductEditPage() {
                 },
               })}
             />
-            {!isValid && (
+            {errors.price?.message && (
               <span className="ml-4 mt-2 text-[15px] font-semibold text-[#F74747]">
                 {errors.price?.message.toString()}
               </span>

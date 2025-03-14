@@ -11,18 +11,15 @@ export const client = axios.create({
   baseURL,
 });
 
-function errorHandler(error: {
-  response: { status: any; data: any };
-  message: string;
-}) {
+function errorHandler(error: any) {
   console.log('AxiosError', error);
-  if (error.response) {
+  if (axios.isAxiosError(error && error.response)) {
     throw new Error(`${error.response.status}: ${error.response.data}`);
   } else {
     if (error instanceof Error) {
       throw new Error(error.message);
     } else {
-      throw new Error('요청에 실패하였습니다.');
+      throw new Error('알 수 없는 에러로 요청에 실패하였습니다.');
     }
   }
 }
@@ -39,7 +36,7 @@ client.interceptors.request.use(
     )
       return config;
     console.log('do interceptor');
-    let accessToken: string;
+    let accessToken: string | null = null;
     if (typeof window !== 'undefined') {
       accessToken = localStorage.getItem('accessToken');
     }
@@ -66,7 +63,7 @@ client.interceptors.response.use(
     if ((statusCode === 401 || statusCode === 419) && !originalRequest._retry) {
       console.log('토큰 만료');
       originalRequest._retry = true;
-      let prevRefreshToken: string;
+      let prevRefreshToken: string | null = null;
       if (typeof window !== 'undefined') {
         prevRefreshToken = localStorage.getItem('refreshToken');
       }
@@ -117,7 +114,7 @@ const editArticle = async (
 };
 
 // 게시글 삭제
-const deleteArticle = async (articleId) => {
+const deleteArticle = async (articleId: string) => {
   try {
     const url = `/articles/${articleId}`;
     const response = await client.delete(url);
@@ -129,7 +126,7 @@ const deleteArticle = async (articleId) => {
 
 // 게시글 목록 조회
 const getArticles = async ({
-  limit,
+  limit = 10,
   sort = 'latest',
   skip = 0,
   keyword = '',
@@ -290,7 +287,7 @@ const getProducts = async ({
 };
 
 // 상품 조회
-const getProduct = async (productId) => {
+const getProduct = async (productId: string) => {
   try {
     const url = `/products/${productId}`;
     const response = await client.get(url);

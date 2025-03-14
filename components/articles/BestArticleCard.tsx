@@ -3,9 +3,10 @@ import icHeart from '@/assets/images/ic_heart.png';
 import medal from '@/assets/images/ic_medal.png';
 import Image from 'next/image';
 
+import { BestArticleCardDto } from '@/types/dtos/article.dto';
 import { formattedDate } from '@/utils/formattedDate';
 
-function BestArticleCard({ article }) {
+function BestArticleCard({ article }: { article: BestArticleCardDto }) {
   return (
     <div className="px-6 pb-[9px] bg-[#f9fafb] rounded-lg">
       <div

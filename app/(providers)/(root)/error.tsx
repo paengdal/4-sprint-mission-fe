@@ -5,7 +5,13 @@ import PageContainer from '@/components/common/Page';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
-export default function Error({ error, reset }) {
+export default function Error({
+  error,
+  reset,
+}: {
+  error: Error;
+  reset: () => void;
+}) {
   const router = useRouter();
 
   useEffect(() => {

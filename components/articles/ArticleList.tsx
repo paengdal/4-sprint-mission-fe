@@ -1,14 +1,21 @@
 'use client';
 
 import api from '@/api';
+import { ArticleCardDto, ArticleListDto } from '@/types/dtos/article.dto';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import Link from 'next/link';
-import { useEffect, useRef, useState } from 'react';
+import {
+  FormEventHandler,
+  KeyboardEventHandler,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import Button from '../common/Button';
 import Dropdown from '../common/Dropdown';
 import ArticleCard from './ArticleCard';
 
-function ArticleList({ initialData }) {
+function ArticleList({ initialData }: { initialData: ArticleListDto[] }) {
   const observeTargetRef = useRef<HTMLAnchorElement>(null);
   const [sortOption, setSortOption] = useState<string>('recent'); // panda
   // const [sortOption, setSortOption] = useState('latest');
@@ -42,17 +49,18 @@ function ArticleList({ initialData }) {
     gcTime: 0,
   });
 
-  const articles =
+  const articles: ArticleCardDto[] =
     data?.pages.flatMap((page) => {
       return page;
     }) || [];
 
-  const handleSubmit = (e) => {
+  const handleSubmit: FormEventHandler = (e) => {
     e.preventDefault();
-    setKeyword(e.target.search.value);
+    const { search } = e.target as HTMLFormElement;
+    setKeyword(search.value);
   };
 
-  const handleEnterKeyDown = (e) => {
+  const handleEnterKeyDown: KeyboardEventHandler = (e) => {
     // 빈 값 입력 시 검색 초기화
     if (e.key === 'Enter') {
       setKeyword('');
@@ -110,7 +118,7 @@ function ArticleList({ initialData }) {
         {articles.map((article, index) => (
           <Link
             ref={index === articles.length - 2 ? observeTargetRef : undefined}
-            key={article.createdAt}
+            key={article.id}
             href={{
               pathname: `/articles/${article.id}`,
             }}
