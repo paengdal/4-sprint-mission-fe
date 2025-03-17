@@ -11,7 +11,7 @@ import PageContainer from '@/components/common/Page';
 import { useAuth } from '@/contexts/AuthContext';
 import { useModal } from '@/contexts/ModalContext';
 import { UserLoginDto } from '@/types/dtos/user.dto';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
@@ -30,6 +30,7 @@ function LogInPage() {
   const { logIn: authLogin } = useAuth();
   const router = useRouter();
   const modal = useModal();
+  const queryClient = useQueryClient();
 
   const {
     register,
@@ -48,6 +49,7 @@ function LogInPage() {
   const { mutate: logIn, isPending } = useMutation({
     mutationFn: (userData: UserLoginDto) => api.logIn(userData),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['me'] });
       router.push('/products');
       authLogin?.();
     },

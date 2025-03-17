@@ -1,15 +1,25 @@
 'use client';
 
+import api from '@/api';
 import icProfile from '@/assets/images/ic_profile.png';
 import { useAuth } from '@/contexts/AuthContext';
+import { UserInfoDto } from '@/types/dtos/user.dto';
+import { useQuery } from '@tanstack/react-query';
 import Image from 'next/image';
 import Link from 'next/link';
 import Button from './Button';
 
 function AuthButton() {
-  const { isLoggedIn, isAuthInitialized, logOut, userInfo } = useAuth();
+  const { isLoggedIn, isAuthInitialized, logOut } = useAuth();
 
-  console.log('In authButton', isLoggedIn, isAuthInitialized, userInfo);
+  const { data: userInfo } = useQuery<UserInfoDto>({
+    queryKey: ['me'],
+    queryFn: api.getMe,
+    staleTime: 0,
+  });
+
+  console.log(userInfo);
+
   const handleClickProfile = () => {
     logOut?.();
   };

@@ -9,12 +9,12 @@ import {
   useEffect,
   useState,
 } from 'react';
-import api, { client } from '../api';
+import { client } from '../api';
 
 interface AuthContextValue {
   isLoggedIn?: boolean;
   isAuthInitialized?: boolean;
-  userInfo?: UserInfoDto | null;
+  // userInfo?: UserInfoDto | null;
   logIn?: () => void;
   logOut?: () => void;
 }
@@ -68,9 +68,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // // 2. 로그인 상태라는 단서가 있으면, 서버에 토큰을 요청
         // await api.refreshToken(prevRefreshToken);
 
-        const user: UserInfoDto = await api.getMe();
+        // const user: UserInfoDto = await api.getMe();
         // if (!user) return;
-        setUserInfo(user);
+        // setUserInfo(user);
         setIsLoggedIn(true);
       } catch (error) {
         console.log('refreshToken이 없거나 만료', error);
@@ -85,7 +85,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const value = {
     isAuthInitialized,
     isLoggedIn,
-    userInfo,
+    // userInfo,
     logIn,
     logOut,
   };
